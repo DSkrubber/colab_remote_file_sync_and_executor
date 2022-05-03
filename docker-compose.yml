@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  minio:
+    image: "bitnami/minio:2022.4.30"
+    container_name: minio
+    environment:
+      - MINIO_ROOT_USER=${AWS_ACCESS_KEY_ID:-"minioadmin"}
+      - MINIO_ROOT_PASSWORD=${AWS_SECRET_ACCESS_KEY:-"minioadmin"}
+    ports:
+      - ${MINIO_PORT:-9000}:${MINIO_PORT:-9000}
+      - "9001:9001"
+    networks:
+      - colab_ssh_net
+
+  app:
+    image: colab_ssh
+    container_name: colab_ssh
+    ports:
+      - ${APP_PORT:-8080}:${APP_PORT:-8080}
+    depends_on:
+      - minio
+    networks:
+      - colab_ssh_net
+    volumes:
+      - .:/opt/colab_ssh
+      - logs:/opt/colab_ssh/documentation
+    privileged: true
+
+networks:
+  colab_ssh_net:
+    driver: bridge
+
+volumes:
+  logs:
