@@ -1,0 +1,327 @@
+openapi: 3.0.2
+info:
+  title: Colab SSH uploader and executor
+  version: 0.1.0
+paths:
+  /files/upload_minio:
+    put:
+      summary: Upload multiple files to minio storage using multipart/form-data
+      description: 'Custom key_prefix will be added to uploaded files names. In order
+        to
+
+        make resource idempotent - will remove all files that have the same prefix
+
+        from storage before upload.'
+      operationId: upload_minio_files_files_upload_minio_put
+      parameters:
+      - required: true
+        schema:
+          title: Bucket
+          type: string
+        example: root
+        name: bucket
+        in: header
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_upload_minio_files_files_upload_minio_put'
+        required: true
+      responses:
+        '204':
+          description: Successful Response
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorSchema'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorSchema'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectionErrorSchema'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /files/upload_colab:
+    post:
+      summary: Upload files with specified prefix from minio storage to colab.
+      description: 'All uploaded files will be stored at "/content/uploaded/" directory.
+
+        If script_name with python script provided - executes script. In order to
+
+        use download resource make sure to save script results at
+
+        "/content/uploaded/output/" directory.'
+      operationId: upload_files_to_colab_files_upload_colab_post
+      parameters:
+      - required: true
+        schema:
+          title: Bucket
+          type: string
+        example: root
+        name: bucket
+        in: header
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UploadColabSchema'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseSchema'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorSchema'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorSchema'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectionErrorSchema'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /files/download_colab:
+    post:
+      summary: Load script results from colab to minio storage
+      description: 'Output files should be stored at "/content/uploaded/output/" directory.
+
+        This resource may be used to sync files on colab and files in minio storage
+
+        with provided keys_prefix. This means that if new file was created on colab
+
+        directory - it will be uploaded to minio, if file was deleted in colab - it
+
+        will be removed in minio. If file didn''t change - it won''t be modified in
+
+        minio.'
+      operationId: sync_files_from_colab_files_download_colab_post
+      parameters:
+      - required: true
+        schema:
+          title: Bucket
+          type: string
+        example: root
+        name: bucket
+        in: header
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DownloadColabSchema'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseSchema'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorSchema'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorSchema'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectionErrorSchema'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    BadRequestErrorSchema:
+      title: BadRequestErrorSchema
+      required:
+      - detail
+      type: object
+      properties:
+        detail:
+          title: Detail
+          type: string
+      example:
+        detail: 'Error: Bad request.'
+    Body_upload_minio_files_files_upload_minio_put:
+      title: Body_upload_minio_files_files_upload_minio_put
+      required:
+      - files
+      - keys_prefix
+      type: object
+      properties:
+        files:
+          title: Files
+          type: array
+          items:
+            type: string
+            format: binary
+        keys_prefix:
+          title: Keys Prefix
+          type: string
+    ConnectionErrorSchema:
+      title: ConnectionErrorSchema
+      required:
+      - detail
+      type: object
+      properties:
+        detail:
+          title: Detail
+          type: string
+      example:
+        detail: 'Error: Connection error.'
+    DownloadColabSchema:
+      title: DownloadColabSchema
+      required:
+      - user
+      - password
+      - host
+      - port
+      - keys_prefix
+      type: object
+      properties:
+        user:
+          title: User
+          type: string
+          example: root
+        password:
+          title: Password
+          type: string
+          example: PASSWORD
+        host:
+          title: Host
+          type: string
+          example: x.tcp.ngrok.io
+        port:
+          title: Port
+          type: integer
+          example: 12345
+        keys_prefix:
+          title: Keys Prefix
+          type: string
+          example: script_files
+    HTTPValidationError:
+      title: HTTPValidationError
+      type: object
+      properties:
+        detail:
+          title: Detail
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationError'
+    NotFoundErrorSchema:
+      title: NotFoundErrorSchema
+      required:
+      - detail
+      type: object
+      properties:
+        detail:
+          title: Detail
+          type: string
+      example:
+        detail: 'Error: Resource was not found.'
+    ResponseSchema:
+      title: ResponseSchema
+      required:
+      - message
+      type: object
+      properties:
+        message:
+          title: Message
+          type: string
+          example: Success
+    UploadColabSchema:
+      title: UploadColabSchema
+      required:
+      - user
+      - password
+      - host
+      - port
+      - keys_prefix
+      type: object
+      properties:
+        user:
+          title: User
+          type: string
+          example: root
+        password:
+          title: Password
+          type: string
+          example: PASSWORD
+        host:
+          title: Host
+          type: string
+          example: x.tcp.ngrok.io
+        port:
+          title: Port
+          type: integer
+          example: 12345
+        keys_prefix:
+          title: Keys Prefix
+          type: string
+          example: script_files
+        script_name:
+          title: Script Name
+          type: string
+          example: script.py
+    ValidationError:
+      title: ValidationError
+      required:
+      - loc
+      - msg
+      - type
+      type: object
+      properties:
+        loc:
+          title: Location
+          type: array
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
