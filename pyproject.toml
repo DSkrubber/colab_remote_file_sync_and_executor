@@ -1,0 +1,31 @@
+[tool.poetry]
+name = "colab_remote_file_sync_and_executor"
+version = "0.1.0"
+description = ""
+authors = ["Dmitrii Chebotarev <skrubberqumo@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+fastapi = "^0.75.2"
+paramiko = "^2.10.4"
+uvicorn = "^0.17.6"
+python-multipart = "^0.0.5"
+boto3 = "^1.22.4"
+python-dotenv = "^0.20.0"
+
+[tool.poetry.dev-dependencies]
+isort = "^5.10.1"
+mypy = "^0.942"
+flake8 = "^4.0.1"
+pre-commit = "^2.18.1"
+commitizen = "^2.24.0"
+pytest-cov = "^3.0.0"
+pytest = "^7.1.2"
+PyYAML = "^6.0"
+black = "^22.3.0"
+types-paramiko = "^2.10.0"
+pylint = "^2.13.8"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
