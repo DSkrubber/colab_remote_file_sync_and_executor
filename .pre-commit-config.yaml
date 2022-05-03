@@ -29,10 +29,11 @@ repos:
       - --scripts-are-modules
       - --allow-untyped-decorators
       - --strict
-      exclude: tests/
+      exclude: "tests/, documentation/"
       additional_dependencies:
         - "pydantic"
         - "types-paramiko"
+        - "types-PyYAML"
   - repo: https://github.com/commitizen-tools/commitizen
     rev: v2.24.0
     hooks:
