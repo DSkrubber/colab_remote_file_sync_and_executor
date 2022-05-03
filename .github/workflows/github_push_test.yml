@@ -1,0 +1,38 @@
+name: github_pust_test
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Print a greeting
+      run: |
+        echo "The branch is ${{ github.ref }} of the ${{ github.repository }} repository \
+          has been cloned to the runner."
+
+    - name: Pulling testing image
+      uses: docker://python:3.8-slim
+
+    - name: Install dependencies
+      run: pip install --upgrade pip && pip install -r requirements.txt
+
+    - name: Lint with isort
+      run: isort --check . --line-length=79 --profile black
+
+    - name: Lint with black
+      run: black --check . --line-length=79
+
+    - name: Lint with flake8
+      run: flake8 .
+
+    - name: Check with mypy
+      run: |
+        mypy . --no-strict-optional --ignore-missing-imports --scripts-are-modules \
+          --allow-untyped-decorators --strict --exclude tests/ --exclude documentation/
+
+    - name: Test with pytest
+      run: pytest --cov=. ./tests
