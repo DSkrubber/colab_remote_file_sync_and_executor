@@ -161,9 +161,10 @@ def sync_files_with_minio(
     :param colab_info: credentials for minio and colab connection.
     :return: None.
     """
+    keys_prefix = colab_info.keys_prefix.strip("/") + "/"
     sync_command = (
         f"aws --endpoint-url {S3_ENDPOINT_URL} s3 sync {local_directory} "
-        f"s3://{bucket}/{colab_info.keys_prefix}/output/ --delete"
+        f"s3://{bucket}/{keys_prefix}/output/ --delete"
     )
     try:
         subprocess.run(
