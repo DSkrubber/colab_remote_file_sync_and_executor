@@ -13,3 +13,4 @@ AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 ROUTES_PREFIX = "/files"
 COLAB_UPLOAD_DIRECTORY = "/content/uploaded"
 COLAB_OUTPUT_DIRECTORY = f"{COLAB_UPLOAD_DIRECTORY}/output"
+TAG = "Colab and Minio resources"

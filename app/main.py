@@ -17,7 +17,7 @@ from .colab_functions import (
     sync_files_with_minio,
     upload_file_to_colab,
 )
-from .constants import ROUTES_PREFIX
+from .constants import ROUTES_PREFIX, TAG
 from .errors import (
     FileIntegrityError,
     NoSuchBucket,
@@ -68,6 +68,7 @@ main_logger = get_logger(__name__)
     f"{ROUTES_PREFIX}/upload_minio",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Upload multiple files to minio storage using multipart/form-data",
+    tags=[TAG],
 )
 def upload_minio_files(
     files: List[UploadFile],
@@ -94,6 +95,7 @@ def upload_minio_files(
     status_code=status.HTTP_200_OK,
     response_model=ResponseSchema,
     summary="Upload files with specified prefix from minio storage to colab.",
+    tags=[TAG],
 )
 def upload_files_to_colab(
     upload_info: UploadColabSchema,
@@ -132,6 +134,7 @@ def upload_files_to_colab(
     status_code=status.HTTP_200_OK,
     response_model=ResponseSchema,
     summary="Load script results from colab to minio storage",
+    tags=[TAG],
 )
 def sync_files_from_colab(
     download_info: DownloadColabSchema,
